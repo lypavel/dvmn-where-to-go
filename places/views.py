@@ -1,35 +1,52 @@
-from django.shortcuts import render
+from django.http.response import JsonResponse
+from django.shortcuts import render, get_object_or_404
+
+from places.models import Image, Place
 
 
 def index(request):
     geo_json = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [37.62, 55.793676]
-          },
-          "properties": {
-            "title": "«Легенды Москвы»",
-            "placeId": "moscow_legends",
-            "detailsUrl": "static/places/moscow_legends.json"
-          }
-        },
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [37.64, 55.753676]
-          },
-          "properties": {
-            "title": "Крыши24.рф",
-            "placeId": "roofs24",
-            "detailsUrl": "static/places/roofs24.json"
-          }
-        }
-      ]
+        'type': 'FeatureCollection',
+        'features': []
     }
+
+    for place in Place.objects.all().iterator():
+        geo_json['features'].append(
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [place.lng, place.lat]
+                },
+                'properties': {
+                    'title': place.title,
+                    'placeId': place.slug,
+                    'detailsUrl': 'static/places/moscow_legends.json'
+                }
+            }
+        )
+
     data = {'places': geo_json}
     return render(request, 'index.html', context=data)
+
+
+def place_page(request, place_id):
+    place = get_object_or_404(Place, id=place_id)
+    images = Image.objects.filter(place__id=place_id)
+    image_urls = [image.image.url for image in images]
+
+    return JsonResponse(
+        {
+            'title': place.title,
+            'imgs': image_urls,
+            'description_short': place.description_short,
+            'description_long': place.description_long,
+            'coordinates': {
+                'lng': place.lng,
+                'lat': place.lat
+            }
+        },
+        json_dumps_params={
+            'ensure_ascii': False,
+            'indent': 2
+        })

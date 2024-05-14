@@ -3,6 +3,7 @@ from django.db import models
 
 class Place(models.Model):
     title = models.CharField('Название', max_length=200)
+    slug = models.SlugField('Уникальный id', unique=True)
 
     description_short = models.TextField(
         'Краткое описание',
