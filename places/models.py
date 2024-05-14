@@ -40,6 +40,10 @@ class Image(models.Model):
         verbose_name='Место',
     )
     image = models.ImageField('Изображение')
+    position = models.IntegerField(
+        'Положение',
+        default=0
+    )
 
     def __str__(self) -> str:
         return f'{self.id} - {self.place.title}'
