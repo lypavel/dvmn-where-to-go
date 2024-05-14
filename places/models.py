@@ -40,7 +40,7 @@ class Image(models.Model):
         verbose_name='Место',
     )
     image = models.ImageField('Изображение')
-    position = models.IntegerField(
+    position = models.PositiveIntegerField(
         'Положение',
         default=0
     )
@@ -51,4 +51,4 @@ class Image(models.Model):
     class Meta:
         verbose_name = 'Изображение'
         verbose_name_plural = 'Изображения'
-        ordering = ['id']
+        ordering = ['position']
