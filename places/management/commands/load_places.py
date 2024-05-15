@@ -96,6 +96,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         json_github_dir = options.get('json_github_urls')
+        json_url = options.get('json_url')
         if json_github_dir:
             while True:
                 response = self.send_get_request(json_github_dir)
@@ -119,6 +120,6 @@ class Command(BaseCommand):
             for place in places:
                 self.save_place_in_db(place)
 
-        elif options.get('json_url'):
-            response = self.send_get_request(url)
+        elif json_url:
+            response = self.send_get_request(json_url)
             self.save_place_in_db(response.json())
