@@ -1,5 +1,9 @@
+beautifulsoup4==4.12.3
 Django==4.2
 django-admin-sortable2==2.1.10
 django-tinymce==4.0.0
 environs==11.0.0
+lxml==5.2.2
 pillow==10.3.0
+pytils==0.4.1
+requests==2.31.0
