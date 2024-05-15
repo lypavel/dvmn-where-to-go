@@ -25,18 +25,18 @@ logger = logging.getLogger(__file__)
 class Command(BaseCommand):
     help = 'Downloads json files and adds data to database.'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser) -> None:
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             '--json_url',
             type=str,
-            help='URL json-файла'
+            help='Json file url'
         )
 
         group.add_argument(
             '--json_github_urls',
             type=str,
-            help='URL директории с json файлами в GitHub репозитории'
+            help='Url of GitHub directory containing json-files'
         )
 
     def send_get_request(self, url: str) -> rq.Response:
@@ -94,16 +94,17 @@ class Command(BaseCommand):
             f'Images for object \"{place["title"]}\" successfully created.'
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
         json_github_dir = options.get('json_github_urls')
         json_url = options.get('json_url')
+
         if json_github_dir:
             while True:
                 response = self.send_get_request(json_github_dir)
                 json_urls = self.parse_github_dir(response.text)
 
                 if not json_urls:
-                    logger.error(f'Can not get data from {json_github_dir}.')
+                    logger.error(f'Can\'t get data from {json_github_dir}.')
                     logger.info('Trying to reconnect...')
                     time.sleep(10)
                     continue
