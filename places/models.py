@@ -4,7 +4,11 @@ from tinymce.models import HTMLField
 
 
 class Place(models.Model):
-    title = models.CharField('Название', max_length=200)
+    title = models.CharField(
+        'Название',
+        max_length=200,
+        unique=True
+    )
     slug = models.SlugField(
         'Уникальный id',
         unique=True,
