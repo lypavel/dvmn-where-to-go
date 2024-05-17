@@ -6,8 +6,7 @@ class Place(models.Model):
     title = models.CharField(
         'Название',
         max_length=200,
-        unique=True,
-        db_index=True
+        unique=True
     )
 
     short_description = models.TextField(
@@ -45,7 +44,8 @@ class Image(models.Model):
     image = models.ImageField('Изображение')
     position = models.PositiveIntegerField(
         'Положение',
-        default=0
+        default=0,
+        db_index=True
     )
 
     def __str__(self) -> str:
