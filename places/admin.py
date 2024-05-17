@@ -1,4 +1,5 @@
-from adminsortable2.admin import SortableTabularInline, SortableAdminBase
+from adminsortable2.admin import SortableAdminMixin, SortableTabularInline, \
+    SortableAdminBase
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -9,12 +10,13 @@ class PlaceImageInline(SortableTabularInline):
     model = Image
     extra = 1
 
-    readonly_fields = ('image_preview',)
+    readonly_fields = ('show_image_preview',)
 
-    def image_preview(self, obj: Image):
+    def show_image_preview(self, obj: Image):
         max_height = 200
         return format_html(
-            '<img src="{url}" width="{width}" height="{height}" />',
+            '<img src="{url}" '
+            'style="max-width:{width}px;max-height:{height}px" />',
             url=obj.image.url,
             width=obj.image.width / (obj.image.height / max_height),
             height=max_height
@@ -26,3 +28,9 @@ class PlaceAdmin(SortableAdminBase, admin.ModelAdmin):
     search_fields = ('title',)
     list_display = ('title', 'lng', 'lat',)
     inlines = (PlaceImageInline,)
+
+
+@admin.register(Image)
+class ImageAdmin(SortableAdminMixin, admin.ModelAdmin):
+    raw_id_fields = ('place',)
+    autocomplete_fields = ('place',)

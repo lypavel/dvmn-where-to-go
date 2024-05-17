@@ -2,17 +2,13 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from places.models import Image, Place
+from places.models import Place
 
 
 def index(request):
-    geo_json = {
+    places = {
         'type': 'FeatureCollection',
-        'features': []
-    }
-
-    for place in Place.objects.all().iterator():
-        geo_json['features'].append(
+        'features': [
             {
                 'type': 'Feature',
                 'geometry': {
@@ -27,17 +23,19 @@ def index(request):
                         kwargs={'place_id': place.id}
                     )
                 }
-            }
-        )
+            } for place in Place.objects.all().iterator()
+        ]
+    }
 
-    data = {'places': geo_json}
-    return render(request, 'index.html', context=data)
+    return render(request, 'index.html', context={'places': places})
 
 
 def place_page(request, place_id):
-    place = get_object_or_404(Place, id=place_id)
-    images = Image.objects.filter(place=place)
-    image_urls = [image.image.url for image in images]
+    place = get_object_or_404(
+        Place.objects.prefetch_related('images'),
+        pk=place_id
+    )
+    image_urls = [image.image.url for image in place.images.all()]
 
     return JsonResponse(
         {

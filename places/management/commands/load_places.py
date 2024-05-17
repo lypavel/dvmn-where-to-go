@@ -39,24 +39,6 @@ class Command(BaseCommand):
             help='Url of GitHub directory containing json-files'
         )
 
-    def send_get_request(self, url: str) -> rq.Response:
-        attempt = 0
-        while True:
-            try:
-                response = rq.get(url)
-                response.raise_for_status()
-
-                return response
-            except rq.exceptions.ConnectionError:
-                logger.error(
-                    f'Connection error when sending GET request to {url}. '
-                )
-                logger.info('Trying to reconnect...')
-
-                attempt += 1
-                if attempt > 3:
-                    time.sleep(10)
-
     def parse_github_dir(self, html: str) -> set[str]:
         soup = BeautifulSoup(html, 'lxml')
 
@@ -67,10 +49,12 @@ class Command(BaseCommand):
     def save_place_in_db(self, place: dict) -> None:
         db_place, is_created = Place.objects.get_or_create(
             title=place['title'],
-            description_short=place['description_short'],
-            description_long=place['description_long'],
-            lng=place['coordinates']['lng'],
-            lat=place['coordinates']['lat']
+            defaults={
+                'description_short': place['description_short'],
+                'description_long': place['description_long'],
+                'lng': place['coordinates']['lng'],
+                'lat': place['coordinates']['lat']
+            }
         )
 
         if not is_created:
@@ -84,11 +68,12 @@ class Command(BaseCommand):
         for image_url in place['imgs']:
             img_name = urlsplit(unquote(image_url)).path.split('/')[-1]
 
-            img = self.send_get_request(image_url)
+            response = rq.get(image_url)
+            response.raise_for_status()
 
             Image.objects.get_or_create(
                 place=db_place,
-                image=ContentFile(img.content, img_name),
+                image=ContentFile(response.content, img_name),
             )
         logger.info(
             f'Images for object \"{place["title"]}\" successfully created.'
@@ -100,7 +85,9 @@ class Command(BaseCommand):
 
         if json_github_dir:
             while True:
-                response = self.send_get_request(json_github_dir)
+                response = rq.get(json_github_dir)
+                response.raise_for_status()
+
                 json_urls = self.parse_github_dir(response.text)
 
                 if not json_urls:
@@ -114,7 +101,8 @@ class Command(BaseCommand):
             github_raw_url = 'https://raw.githubusercontent.com/'
             for json_url in json_urls:
                 url = urljoin(github_raw_url, json_url).replace('/blob/', '/')
-                response = self.send_get_request(url)
+                response = rq.get(url)
+                response.raise_for_status()
 
                 places.append(response.json())
 
@@ -122,5 +110,7 @@ class Command(BaseCommand):
                 self.save_place_in_db(place)
 
         elif json_url:
-            response = self.send_get_request(json_url)
+            response = rq.get(json_url)
+            response.raise_for_status()
+
             self.save_place_in_db(response.json())
