@@ -31,5 +31,4 @@ class PlaceAdmin(SortableAdminBase, admin.ModelAdmin):
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    raw_id_fields = ('place',)
     autocomplete_fields = ('place',)
