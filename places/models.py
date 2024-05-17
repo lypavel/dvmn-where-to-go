@@ -22,12 +22,10 @@ class Place(models.Model):
     )
 
     lng = models.FloatField(
-        'Долгота',
-        blank=True
+        'Долгота'
     )
     lat = models.FloatField(
-        'Широта',
-        blank=True
+        'Широта'
     )
 
     def __str__(self) -> str:
