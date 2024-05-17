@@ -1,5 +1,4 @@
-from adminsortable2.admin import SortableAdminMixin, SortableTabularInline, \
-    SortableAdminBase
+from adminsortable2.admin import SortableTabularInline, SortableAdminBase
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -31,6 +30,6 @@ class PlaceAdmin(SortableAdminBase, admin.ModelAdmin):
 
 
 @admin.register(Image)
-class ImageAdmin(SortableAdminMixin, admin.ModelAdmin):
+class ImageAdmin(admin.ModelAdmin):
     raw_id_fields = ('place',)
     autocomplete_fields = ('place',)

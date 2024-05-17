@@ -7,7 +7,8 @@ class Place(models.Model):
     title = models.CharField(
         'Название',
         max_length=200,
-        unique=True
+        unique=True,
+        db_index=True
     )
     slug = models.SlugField(
         'Уникальный id',
@@ -16,11 +17,11 @@ class Place(models.Model):
         max_length=200
     )
 
-    description_short = models.TextField(
+    short_description = models.TextField(
         'Краткое описание',
         blank=True
     )
-    description_long = HTMLField(
+    long_description = HTMLField(
         'Полное описание',
         blank=True
     )
